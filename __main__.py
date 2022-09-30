@@ -5,6 +5,12 @@ import pulumi
 import pulumi_github as github
 from github_secrets import encrypt_github_action_secret
 
+from dotenv import load_dotenv
+from os import environ
+from github_repo import init_and_push_new_repo
+
+load_dotenv()
+GITHUB_ACCESS_TOKEN = environ.get("GITHUB_TOKEN")
 
 def create_environment(env_name: str, repo: github.Repository):
     env = github.RepositoryEnvironment(
@@ -37,6 +43,17 @@ repo = github.Repository(
     name="sample-repo",
     archive_on_destroy=False,
 )
+
+pulumi.Output.apply(
+    repo.git_clone_url,
+    # run git push origin trunk as a subprocess/bash command
+    lambda git_clone_url: init_and_push_new_repo(
+        github_access_token=GITHUB_ACCESS_TOKEN, 
+        default_branch="trunk", 
+        repo_username_or_org="rootski-ci", 
+        repo_slug="sample-repo")
+)
+
 
 trunk_branch = github.BranchDefault(
     resource_name=f"{repo.name}--default-branch",
