@@ -7,8 +7,8 @@ install:
 
 pulumi-up:
     #!/bin/bash
-    pulumi up -v 3
-    # pulumi up --logtostderr --logflow -v=9 2> out.txt
+    # pulumi up -v 9
+    pulumi up --logtostderr --logflow -v=9 2> out.txt
 
 pulumi-destroy:
     #!/bin/bash

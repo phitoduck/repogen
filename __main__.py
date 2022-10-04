@@ -1,8 +1,6 @@
 """A Python Pulumi program"""
 
 from functools import lru_cache
-from pathlib import Path
-import pulumi
 import pulumi_github as github
 from repogen.dynamic_providers.github_action_environment_secret.resource import GithubActionsSecret, GithubActionsSecretArgs
 
@@ -11,7 +9,12 @@ from os import environ
 from pulumi import Output
 
 load_dotenv()
-GITHUB_ACCESS_TOKEN = environ.get("GITHUB_TOKEN")
+GITHUB_ACCESS_TOKEN = environ["GITHUB_TOKEN"]
+"""
+I wanted to avoid using Pulumi.yaml to manage this token so that these resources could be imported/created in a CLI tool.
+Relying on Pulumi.yaml and pulumi.Config() allows pulumi to manage/encrypt secrets, but would require end users to do
+some pulumi-specific setup if they were to use a CLI tool that wraps this file (or any other interface over the pulumi automation API)
+"""
 
 def create_environment(env_name: str, repo: github.Repository):
     env = github.RepositoryEnvironment(
@@ -20,42 +23,17 @@ def create_environment(env_name: str, repo: github.Repository):
         environment=env_name,
     )
 
-    # create_env_secret(repo_id=repo.repo_id, env=env, secret_name="ENVIRONMENT", secret_value=env_name.lower())
-    if env_name=="Sandbox":
-        secret_name = "TEST_SECRET"
-        args = GithubActionsSecretArgs(
-            repo_id=repo.repo_id, 
-            env_name=env.environment, 
-            secret_name="TEST_SECRET",
-            # pulumi handles plaintext values differently (internally) if you
-            # call Output.secret(). It makes Pulumi encrypt them in the state.
-            # https://www.pulumi.com/docs/intro/concepts/secrets/#programmatically-creating-secrets
-            plaintext_secret=Output.secret("dummy"), 
-        )
-        GithubActionsSecret(f"{repo._name}/{env_name}/{secret_name}", args=args)
-    
-
-# def create_env_secret(repo_id: str, env: github.RepositoryEnvironment, secret_name: str, secret_value: str) -> github.ActionsEnvironmentSecret:
-#     env_name: Output[str] = Output.apply(env.environment, lambda name: name.split(":")[-1])
-#     encrypted_secret: Output[str] = encrypt_github_action_secret_async(
-#         token=GITHUB_ACCESS_TOKEN,
-#         repo_id=repo_id,
-#         secret_value=secret_value,
-#         env_name=env_name,
-#     )
-#     return github.actions_environment_secret.ActionsEnvironmentSecret(
-#         resource_name=f"{env._name}/{secret_name.lower()}/env-secret",
-#         secret_name=secret_name,
-#         encrypted_value=encrypted_secret,
-#         # plaintext_value=encrypted_secret,
-#         environment=env,
-#         repository=env.repository,
-#     )
-
-@lru_cache
-def get_github_actions_public_encryption_key(repo: github.Repository) -> github.AwaitableGetActionsPublicKeyResult:
-    public_key = github.get_actions_public_key(repository=repo)
-    return public_key
+    secret_name = "TEST_SECRET"
+    args = GithubActionsSecretArgs(
+        repo_id=repo.repo_id, 
+        env_name=env.environment, 
+        secret_name="TEST_SECRET",
+        # pulumi handles plaintext values differently (internally) if you
+        # call Output.secret(). It makes Pulumi encrypt them in the state.
+        # https://www.pulumi.com/docs/intro/concepts/secrets/#programmatically-creating-secrets
+        plaintext_secret=Output.secret("dummy"), 
+    )
+    GithubActionsSecret(f"{repo._name}/{env_name}/{secret_name}", args=args)
 
 
 repo = github.Repository(
@@ -83,9 +61,4 @@ repo = github.Repository(
 
 create_environment("Sandbox", repo=repo)
 create_environment("Development", repo=repo)
-# create_environment("Production", repo=repo)
-
-"""
-1. upload some boilerplate code to the repo
-2. configue CI/CD for repo (with GitHub actions)--creating environments and settings env secrets in those
-"""
+create_environment("Production", repo=repo)

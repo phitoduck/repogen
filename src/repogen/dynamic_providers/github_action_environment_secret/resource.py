@@ -3,18 +3,17 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Type
 from pulumi import Input, Output
-from pulumi.dynamic import Resource, ResourceProvider, CreateResult, UpdateResult
+from pulumi.dynamic import Resource, ResourceProvider, CreateResult
 from os import environ
 from dotenv import load_dotenv
 
 from repogen.dynamic_providers.github_action_environment_secret.secrets_utils import (
     create_or_update_secret,
     delete_secret,
-    encrypt_github_action_secret,
 )
 
 load_dotenv()
-GITHUB_TOKEN = environ.get("GITHUB_TOKEN")
+GITHUB_TOKEN = environ["GITHUB_TOKEN"]
 
 
 @dataclass

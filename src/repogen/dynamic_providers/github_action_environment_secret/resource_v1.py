@@ -1,9 +1,18 @@
+"""
+This file is for historical purposes. It shows how we used to require that the secret
+be encrypted *before* being passed to the GitHubActionsSecret custom resource.
+
+The thinking here was that all inputs/outputs are stored in the pulumi state.
+We've since learned we can register certin inputs/outputs as secrets which causes
+pulumi to encrypt them.
+"""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Type
 from pulumi import Input, Output
-from pulumi.dynamic import Resource, ResourceProvider, CreateResult, UpdateResult
+from pulumi.dynamic import Resource, ResourceProvider, CreateResult
 from os import environ
 from dotenv import load_dotenv
 
