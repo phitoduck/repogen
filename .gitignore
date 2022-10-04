@@ -15,3 +15,4 @@ dist
 build
 *.whl
 *egg-info
+out.txt
