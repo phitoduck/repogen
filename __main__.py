@@ -2,14 +2,14 @@
 
 from functools import lru_cache
 import pulumi_github as github
-from repogen.dynamic_providers.github_action_environment_secret.resource import GithubActionsSecret, GithubActionsSecretArgs
-from repogen.dynamic_providers.scaffolded_project.github_repo import init_and_push_new_repo
+from repogen.custom_resources.github_action_environment_secret.resource import GithubActionsSecret, GithubActionsSecretArgs
+from repogen.custom_resources.scaffolded_project.github_repo import init_and_push_new_repo
 
 from dotenv import load_dotenv
 from os import environ
 from pulumi import Output, ResourceOptions
 
-from repogen.dynamic_providers.scaffolded_project.resource import ScaffoldedProjectFiles, ScaffoldedProjectFilesArgs
+from repogen.custom_resources.scaffolded_project.resource import ScaffoldedProjectFiles, ScaffoldedProjectFilesArgs
 
 load_dotenv()
 GITHUB_ACCESS_TOKEN = environ["GITHUB_TOKEN"]

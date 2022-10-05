@@ -11,7 +11,11 @@ project = PythonPackage(
         "GitPython",
         "python-dotenv",
         "phitoduck-projen",
-    ]
+        "typer",
+        "rich",
+    ],
+    entrypoints={"repogen": "repogen.cli:run"}
 )
+project.gitignore.add_patterns("!sample.env")
 
 project.synth()
