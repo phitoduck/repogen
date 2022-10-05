@@ -1,5 +1,11 @@
 # 📣 Welcome to `repogen`!
 
+------------
+
+> ⚠️ Warning
+>
+> This project is in rapid development. Expect breaking API changes.
+
 The goal of this project is to automate the creation and configuration of GitHub repositories.
 
 The idea is that any team working with Python could use this repository as a reference implemetation
