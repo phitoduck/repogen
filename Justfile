@@ -7,14 +7,14 @@ install:
 
 pulumi-up:
     #!/bin/bash
-    pulumi up -v 9
+    pulumi up --yes -v 3 --stack repogen
 
     # this was logging the github access token to out.txt!!! very bad. Luckily GitHub auto-revokes those
     # pulumi up --logtostderr --logflow -v=9 2> out.txt
 
 pulumi-destroy:
     #!/bin/bash
-    pulumi destroy
+    pulumi destroy --skip-preview --yes --stack repogen
 
 pulumi-cancel:
     pulumi cancel

@@ -15,7 +15,10 @@ THIS_DIR = Path(__file__).parent
 
 
 def init_and_push_new_repo(github_access_token: str, default_branch: str, repo_username_or_org: str, repo_slug: str, dry_run: bool = False):
-    with TemporaryDirectory(dir=THIS_DIR) as repo_dir:
+    TMP_DIR = Path.home() / ".repogen"
+    TMP_DIR.mkdir(parents=True, exist_ok=True)
+
+    with TemporaryDirectory(dir=TMP_DIR) as repo_dir:
         repo: Repo = create_local_git_repo(repo_dir=Path(repo_dir), default_branch=default_branch)
         create_python_package(
             outdir=Path(repo_dir), package_name=repo_slug, module_name="sample_pkg", install_requires=["rich"], package_version="1.0.0"
@@ -26,7 +29,7 @@ def init_and_push_new_repo(github_access_token: str, default_branch: str, repo_u
             username_or_org=repo_username_or_org,
             repo_slug=repo_slug
         )
-        print(f"pushing files to: {remote_url}")
+        # print(f"pushing files to: {remote_url}")
         if not dry_run:
             push_new_repo_to_remote(repo=repo, remote_git_url=remote_url, branch=default_branch)
 
@@ -60,8 +63,10 @@ def make_remote_url(github_access_token: str, username_or_org: str, repo_slug: s
 
 def create_local_git_repo(repo_dir: Path, default_branch: str) -> Repo:
     repo = Repo.init(path=repo_dir)
-    os.chdir(str(repo_dir))
+
+    # os.chdir(str(repo_dir))
     repo.git.checkout(b=default_branch)
+    
     return repo
 
 def create_readme_md(dir: Union[str, Path]):
@@ -76,15 +81,10 @@ def create_readme_md(dir: Union[str, Path]):
 
 
 def push_new_repo_to_remote(repo: Repo, remote_git_url: str, branch: str):
-    stage_all_repo_files(repo=repo)
-    repo.index.commit("Initial commit by Pulumi.")
-    repo.create_remote("origin", url=remote_git_url)
-    repo.git.push("--set-upstream", "origin", "trunk")
-    # repo.git.push("-u", "origin", "head")
-
-def stage_all_repo_files(repo: Repo):
-    dot_git_dir = Path(repo.common_dir)
-    repo.git.add("*")
+    repo.git.add("--all")
+    repo.git.commit(m="Initial commit by Pulumi.")
+    repo.git.remote("add", "origin", remote_git_url)
+    repo.git.push("origin", branch)
 
 
 
@@ -95,7 +95,7 @@ def main():
     load_dotenv()
     GITHUB_ACCESS_TOKEN = environ.get("GITHUB_TOKEN")
 
-    init_and_push_new_repo(github_access_token=GITHUB_ACCESS_TOKEN, default_branch="trunk", dry_run=True, repo_slug="sample-repo", repo_username_or_org="phitoduck")
+    init_and_push_new_repo(github_access_token=GITHUB_ACCESS_TOKEN, default_branch="trunk", dry_run=False, repo_slug="sample-repo", repo_username_or_org="rootski-ci")
 
 
 if __name__ == "__main__":

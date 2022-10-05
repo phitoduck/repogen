@@ -3,10 +3,13 @@
 from functools import lru_cache
 import pulumi_github as github
 from repogen.dynamic_providers.github_action_environment_secret.resource import GithubActionsSecret, GithubActionsSecretArgs
+from repogen.dynamic_providers.scaffolded_project.github_repo import init_and_push_new_repo
 
 from dotenv import load_dotenv
 from os import environ
-from pulumi import Output
+from pulumi import Output, ResourceOptions
+
+from repogen.dynamic_providers.scaffolded_project.resource import ScaffoldedProjectFiles, ScaffoldedProjectFilesArgs
 
 load_dotenv()
 GITHUB_ACCESS_TOKEN = environ["GITHUB_TOKEN"]
@@ -35,29 +38,28 @@ def create_environment(env_name: str, repo: github.Repository):
     )
     GithubActionsSecret(f"{repo._name}/{env_name}/{secret_name}", args=args)
 
-
 repo = github.Repository(
     resource_name="sample-repo",
     name="sample-repo",
     archive_on_destroy=False,
 )
 
-# pulumi.Output.apply(
-#     repo.git_clone_url,
-#     # run git push origin trunk as a subprocess/bash command
-#     lambda git_clone_url: init_and_push_new_repo(
-#         github_access_token=GITHUB_ACCESS_TOKEN, 
-#         default_branch="trunk", 
-#         repo_username_or_org="rootski-ci", 
-#         repo_slug="sample-repo")
-# )
+scaffolded_project_files = ScaffoldedProjectFiles(
+    "scaffolded-project-files",
+    args=ScaffoldedProjectFilesArgs(
+        default_branch="trunk", 
+        repo_name=repo._name, 
+        owner_user_or_org_name="rootski-ci"
+    ),
+    opts=ResourceOptions(depends_on=repo)
+)
 
-
-# trunk_branch = github.BranchDefault(
-#     resource_name=f"{repo._name}--default-branch",
-#     branch="trunk",
-#     repository=repo,
-# )
+trunk_branch = github.BranchDefault(
+    resource_name=f"{repo._name}--default-branch",
+    branch="trunk",
+    repository=repo,
+    opts=ResourceOptions(depends_on=scaffolded_project_files)
+)
 
 create_environment("Sandbox", repo=repo)
 create_environment("Development", repo=repo)
