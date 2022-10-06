@@ -31,7 +31,9 @@ jobs:
         python-version: "3.9"
 
     - name: install dependencies
-      run: pip install -e .
+      run: |
+        pip install -e .
+        pip install -e ./github-api-client
 
     - name: run repogen
       run: |
