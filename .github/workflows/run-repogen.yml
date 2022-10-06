@@ -41,6 +41,9 @@ jobs:
         echo "    repogen_subcommand: ${{ inputs.repogen_subcommand }}"
         echo "       repository_name: ${{ inputs.repository_name }}"
         
+        git config --global user.email "eric.russia97@gmail.com"
+        git config --global user.name "repogen CI"
+
         GITHUB_TOKEN=${{ secrets.PULUMI_APP_GITHUB_TOKEN }} \
         PULUMI_ACCESS_TOKEN=${{ secrets.PULUMI_ACCESS_TOKEN }} \
           repogen ${{ inputs.repogen_subcommand }} --repo-name "${{ inputs.repository_name }}"
