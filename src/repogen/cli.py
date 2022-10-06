@@ -13,7 +13,7 @@ def create_cli() -> Typer:
         create_repo(repo_name=repo_name)
 
     @cli.command(name="destroy-repo")
-    def __destroy_repo(repo_name: str = Argument(..., allow_dash=True)):
+    def __destroy_repo(repo_name: str = Option(..., allow_dash=True)):
         destroy_repo(repo_name=repo_name)
 
     return cli
