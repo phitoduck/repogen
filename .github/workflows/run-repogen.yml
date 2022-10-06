@@ -1,0 +1,44 @@
+name: run repogen
+
+on:
+  workflow_dispatch:
+    inputs:
+      repository_name:
+        type: text
+        required: true
+        description: Repository name
+      repogen_subcommand:
+        type: choice
+        options:
+          - create-repo
+          - destroy-repo
+        required: true
+        description: repogen subcommand
+        default: create-repo
+
+jobs:
+  deploy:
+
+    runs-on: ubuntu-latest
+
+    environment: rootski-ci-user
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: set up python
+      uses: actions/setup-python@v3
+      with:
+        python-version: "3.9"
+
+    - name: install dependencies
+      run: pip install -e .
+
+    - name: run repogen
+      run: |
+        echo "Running repogen with the following inputs"
+        echo "    repogen_subcommand: ${{ inputs.repogen_subcommand }}"
+        echo "       repository_name: ${{ inputs.repository_name }}"
+        
+        GITHUB_TOKEN=${{ secrets.PULUMI_APP_GITHUB_TOKEN }} \
+        PULUMI_ACCESS_TOKEN=${{ secrets.PULUMI_ACCESS_TOKEN }} \
+          repogen ${{ inputs.repogen_subcommand }} --repo-name "${{ inputs.repository_name }}"

@@ -1,5 +1,5 @@
 from repogen.repo_program import run as run_program
-from typer import Typer
+from typer import Typer, Argument, Option
 
 def run():
     cli = create_cli()
@@ -7,8 +7,15 @@ def run():
 
 def create_cli() -> Typer:
     cli = Typer()
-    cli.command()(create_repo)
-    cli.command()(destroy_repo)
+
+    @cli.command(name="create-repo")
+    def __create_repo(repo_name: str = Option(..., allow_dash=True)):
+        create_repo(repo_name=repo_name)
+
+    @cli.command(name="destroy-repo")
+    def __destroy_repo(repo_name: str = Argument(..., allow_dash=True)):
+        destroy_repo(repo_name=repo_name)
+
     return cli
 
 def create_repo(repo_name: str):
