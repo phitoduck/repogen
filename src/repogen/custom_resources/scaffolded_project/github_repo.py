@@ -2,16 +2,13 @@ from tempfile import TemporaryDirectory
 from textwrap import dedent
 from typing import List, Optional, Union
 from git.repo import Repo
-from git.refs import Head
 from pathlib import Path
 from rich import print
 from phito_projen import PythonPackage
 from projen import SampleFile
-import os
 
 
 THIS_DIR = Path(__file__).parent
-        
 
 
 def init_and_push_new_repo(github_access_token: str, default_branch: str, repo_username_or_org: str, repo_slug: str, dry_run: bool = False):
@@ -50,9 +47,9 @@ def create_python_package(outdir: Path, package_name: str, module_name: str, pac
     )
     SampleFile(package, file_path="README.md", contents=dedent(
         f"""\
-        # I am a repository!
+        # 📣 Welcome to `{package_name}`!
 
-        I was created with Pulumi :)
+        I was created with `repogen` :)
         """
     ))
     package.synth()
@@ -69,20 +66,10 @@ def create_local_git_repo(repo_dir: Path, default_branch: str) -> Repo:
     
     return repo
 
-def create_readme_md(dir: Union[str, Path]):
-    readme_fpath = Path(dir) / "README.md"
-    readme_fpath.write_text(dedent(
-        """\
-        # I am a repository!
-
-        I was created with Pulumi :)
-        """
-    ))
-
 
 def push_new_repo_to_remote(repo: Repo, remote_git_url: str, branch: str):
     repo.git.add("--all")
-    repo.git.commit(m="Initial commit by Pulumi.")
+    repo.git.commit(m="Initial commit by `repogen`.")
     repo.git.remote("add", "origin", remote_git_url)
     repo.git.push("origin", branch)
 
